@@ -9,13 +9,8 @@ we propose (1) the Gated Pyramid Pooling (GPP) layer to resolve the architectura
 Erasing Framework via Triplet (AEFT) to effectively prevent the over-expansion via triplet, while preserving the benefits of AE.
 With image-level supervision only, we achieved new state-of-the-arts both on PASCAL VOC 2012 and MS-COCO.
 
-## Citation
-If our code be useful for you, please consider citing our ECCV paper using the following BibTeX entry.
-```
-TBD
-```
+<img src= "https://user-images.githubusercontent.com/42232407/179930811-59bc19f8-e0da-44d7-be83-64d9c489b319.png" width="700">
 
-we heavily borrow the work from [AffinityNet](https://github.com/jiwoon-ahn/psa) repository. Thanks for the excellent codes!
 
 ## Prerequisite
 * Tested on Ubuntu 18.04, with Python 3.6, PyTorch 1.5.1, CUDA 10.1, both on both single and multi gpu.
@@ -47,6 +42,14 @@ python evaluation.py --name [exp_name] --task cam --dict_dir dict
 ### Evaluation for CRF result (ex. alpha=6)
 ```
 python evaluation.py --name [exp_name] --task crf --dict_dir crf/[xx]
+```
+## Citation
+If our code be useful for you, please consider citing our ECCV paper using the following BibTeX entry.
+```
+TBD
+```
+
+we heavily borrow the work from [AffinityNet](https://github.com/jiwoon-ahn/psa) repository. Thanks for the excellent codes!
 ```
 ## Reference
 [1] J. Ahn and S. Kwak. Learning pixel-level semantic affinity with image-level supervision for weakly supervised semantic segmentation. In Proc. IEEE Conference on Computer Vision and Pattern Recognition (CVPR), 2018.
