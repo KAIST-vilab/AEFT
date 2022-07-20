@@ -1,3 +1,4 @@
 data/
 pretrained/
 models/
+.fuse_*
