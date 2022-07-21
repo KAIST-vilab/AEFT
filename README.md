@@ -5,7 +5,7 @@ This repository contains the official PyTorch implementation of the paper "[Adve
 
 
 ## Introduction
-we propose (1) the Gated Pyramid Pooling (GPP) layer to resolve the architectural limitation of classifier (or GAP) and (2) the Adversarial
+We propose (1) the Gated Pyramid Pooling (GPP) layer to resolve the architectural limitation of classifier (or GAP) and (2) the Adversarial
 Erasing Framework via Triplet (AEFT) to effectively prevent the over-expansion via triplet, while preserving the benefits of AE.
 With image-level supervision only, we achieved new state-of-the-arts both on PASCAL VOC 2012 and MS-COCO.
 
