@@ -37,7 +37,7 @@ if __name__ == '__main__':
     parser.add_argument("--train_list", default="voc12/train_aug.txt", type=str)
     parser.add_argument("--val_list", default="voc12/train.txt", type=str)
     parser.add_argument("--num_workers", default=8, type=int)
-    parser.add_argument("--batch_size", default=8, type=int)
+    parser.add_argument("--batch_size", default=32, type=int)
 
     # Augmentation
     parser.add_argument("--resize", default=[256, 512], nargs='+', type=float)
@@ -49,7 +49,7 @@ if __name__ == '__main__':
     parser.add_argument("--M", default=0.5, type=float)
     parser.add_argument("--TH", default=[0.6,0.2], nargs='+',type=float)
     parser.add_argument("--T", default=15, type= int)
-    parser.add_argument("--W", default=[1.0, 0.15, 0.15], nargs='+', type=float)
+    parser.add_argument("--W", default=[1.0, 0.2, 0.15], nargs='+', type=float)
     parser.add_argument("--CRF", default=4, type=int)
 
     # Learning rate
@@ -61,7 +61,7 @@ if __name__ == '__main__':
     parser.add_argument("--model", default='eccv22_final', type=str)
     parser.add_argument("--name", required=True, type=str)
     parser.add_argument("--gpu", default=-1, type=int)
-    parser.add_argument("--seed", default=6101, type=int)
+    parser.add_argument("--seed", default=5123, type=int)
 
     # Output
     parser.add_argument("--vis", action='store_true')

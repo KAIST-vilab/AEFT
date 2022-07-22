@@ -27,7 +27,6 @@ from torchvision import transforms
 import voc12.data
 from tools import utils, pyutils
 from tools.imutils import save_img, denorm, _crf_with_alpha
-import tools.visualizer as visualizer
 
 # import resnet38d
 from networks import resnet38d, vgg16d
@@ -46,10 +45,8 @@ class AttractionLoss(nn.Module):
     def __init__(self):
         super(AttractionLoss, self).__init__()
     def forward(self,anchor,positive):
-        loss = ((anchor - positive)).pow(2).sum(1) #B C
-        loss = loss.mean()
 
-        return loss
+        return F.l1_loss(positive,anchor)
 
 class RepulsionLoss(nn.Module):
 
@@ -58,11 +55,7 @@ class RepulsionLoss(nn.Module):
         self.margin = margin
 
     def forward(self, anchor_pos,negative_pos,size_average=True):
-      
-        # distance_negative = ((anchor_pos - negative_pos)).pow(2) #B C
-
-        # loss = (F.relu(- distance_negative + self.margin)).mean()
-        # return loss
+        
         distance_negative = ((anchor_pos - negative_pos)).pow(2).sum(1) #B C
 
         loss = (F.relu(- distance_negative + self.margin)).mean()
@@ -86,10 +79,6 @@ class model_WSSS():
         self.bs = args.batch_size
         self.logger = logger
 
-        # Attributes
-        self.iterative = args.iterative
-        self.low_scale = args.low_scale
-
         # Hyper-parameters
         self.T = args.T  # T
         self.M = args.M  # Margin 
@@ -99,14 +88,11 @@ class model_WSSS():
         # Model attributes
         self.net_names = ['net_main']
         self.base_names = ['cls','attract','repulse']
-        if self.iterative:
-            self.base_names.append('iter')
         self.loss_names = ['loss_' + bn for bn in self.base_names]
         self.acc_names = ['acc_' + bn for bn in self.base_names]
 
         self.nets = []
         self.opts = []
-        self.vis = visualizer.Visualizer(args.visport, self.loss_names, self.acc_names)
 
         # Evaluation-related
         self.running_loss = [0] * len(self.loss_names)
@@ -219,7 +205,6 @@ class model_WSSS():
         H = self.img_a.shape[2]
         W = self.img_a.shape[3]
         C = 20  # Number of cls
-        D = self.D
 
         self.B = B
         self.C = C
@@ -262,10 +247,10 @@ class model_WSSS():
         cam_norm = self.max_norm(cam_large)
         cam_fg = torch.max(cam_norm*self.label.view(B,C,1,1),dim=1,keepdim=True)[0] # B 1 H W
         
-        mask_pos = (cam_fg<self.TH[0])
+        mask_pos = (cam_fg<self.TH[0])*cam_fg
       
         self.loss_cls = self.W[0] * self.bce(self.out[:8], self.label[:8])
-        
+                
         loss = self.loss_cls
 
         ################################################### Attraction ###################################################
@@ -273,8 +258,8 @@ class model_WSSS():
         if self.W[1] > 0 and epo>= self.T:
             cam_mask, self.out_mask, gpp_masked = self.net_main(self.img*mask_pos) #original
 
-            anchor = F.normalize(F.adaptive_avg_pool2d(F.relu(gpp),(1,1)).view(B,C))*self.label
-            positive = F.normalize(F.adaptive_avg_pool2d(F.relu(gpp_masked),(1,1)).view(B,C))*self.label
+            anchor = F.adaptive_avg_pool2d(F.relu(gpp),(1,1)).view(B,C)*self.label
+            positive = F.adaptive_avg_pool2d(F.relu(gpp_masked),(1,1)).view(B,C)*self.label
             
             self.loss_attract = self.W[1]*self.attract_loss(anchor,positive)
             
@@ -289,17 +274,21 @@ class model_WSSS():
         ################################################### Repulusion ###################################################
 
         if self.W[2] > 0 and epo>= self.T:
-            mask_anchor_bg = (cam_n<self.TH[1]).float() 
 
-            # feat_norm = (gpp)/(torch.max(torch.abs(gpp).view(B,C,-1),dim=-1)[0].view(B,C,1,1)+1e-5)
+            mask_anchor_bg = (cam_n<self.TH[1]).float()
+            mask_negative = (cam_n<1.0).float()
+
+            feat_norm = gpp/(torch.max(torch.abs(gpp).view(B,C,-1),dim=-1)[0].view(B,C,1,1)+1e-5) # 
+
+            anchor_pos = (torch.sum((mask_anchor_bg*(feat_norm)).view(B,C,-1),dim=-1,keepdim=True)/(torch.sum(mask_anchor_bg.view(B,C,-1),dim=-1,keepdim=True)+1e-5)).view(B,C)*self.label
+            negative_pos =  (torch.sum((mask_negative*(feat_norm)).view(B,C,-1),dim=-1,keepdim=True)/(torch.sum(mask_negative.view(B,C,-1),dim=-1,keepdim=True)+1e-5)).view(B,C)*self.label
             
-            anchor_pos = F.normalize(F.adaptive_avg_pool2d(gpp*mask_anchor_bg,(1,1)).view(B,C))*self.label
-            negative_pos =  F.normalize(F.adaptive_avg_pool2d(gpp,(1,1)).view(B,C))*self.label
             negative_pos = negative_pos[n_idx]
 
             distance_negative_pos = ((anchor_pos - negative_pos)).pow(2).sum(1)
             all = (distance_negative_pos<self.M).cpu().numpy().flatten()
             hard_triplets_pos = np.where(all == 1)
+        
 
             anchor_pos = anchor_pos[hard_triplets_pos]
             negative_pos = negative_pos[hard_triplets_pos]
@@ -307,21 +296,15 @@ class model_WSSS():
             if len(hard_triplets_pos[0])>4:
                 self.loss_repulse = self.W[2]*self.repulse_loss(anchor_pos,negative_pos)
                 loss += self.loss_repulse
+            else:
+                self.loss_repulse = torch.Tensor([0])
         else:
             self.loss_repulse = torch.Tensor([0])
 
         loss.backward()
         self.opt_main.step()
               
-        ################################################visualize##########################
-        self.mask = mask_pos
-        self.cam2 = F.interpolate(self.max_norm(cam),size=(H,W),mode='bilinear',align_corners=False)
-        if self.W[1]>0 and epo>=self.T:
-            self.mask_anchor_bg = (cam_fn<self.TH[1]).float() 
-            self.cam_mask = F.interpolate(self.max_norm(cam_mask),size=(H,W),mode='bilinear',align_corners=False)
-        else:
-            self.mask_anchor_bg = self.cam2
-            self.cam_mask = self.cam2
+       
         ################################################### Export ###################################################
 
 
@@ -455,45 +438,3 @@ class model_WSSS():
         self.label_remain = self.label - self.label_exist
 
         self.label_all = self.label  # [:16]
-
-    def show_mask(self):
-        bs =  8
-        labels = ''
-
-        cam_vis= self.cam2[:bs]
-        cam_mask_vis= self.cam_mask[:bs]
-        mask_anchor_bg_vis = self.mask_anchor_bg[:bs][self.label_exist[:bs] == 1, :, :].unsqueeze(1)
-
-        for i in range(bs):
-            label_idx = torch.nonzero(self.label_exist[i])
-            labels += "%d: " % i + self.categories[label_idx] + ",  "
-            if i == 7:
-                labels += "\n"
-
-        out_er_all = F.sigmoid(self.out[:bs])
-        out_er_sup = F.sigmoid(self.out[:bs])
-
-        all_preds = ''
-        remain_preds = ''
-        for i in range(bs):
-            for j in torch.nonzero(self.label_all[i]).view(-1).tolist():
-                all_preds += self.categories[j] + ': ' + str(out_er_all[i, j].item())[:5] + ' '
-                remain_preds += self.categories[j] + ': ' + str(out_er_sup[i, j].item())[:5] + ' '
-            all_preds += ' | '
-            remain_preds += ' | '
-
-        img_np = [denorm(self.img_a[i]).cpu().detach().numpy() for i in range(bs)]
-        img_remain_np = [denorm(self.img_a[i]*(self.mask[i])).cpu().detach().numpy() for i in range(bs)]
-        img_bg = [denorm(self.img_a[i]*(mask_anchor_bg_vis[i])).cpu().detach().numpy() for i in range(bs)]
-        mask = [denorm(torch.ones_like(self.img_a[i])*(self.mask[i])).cpu().detach().numpy() for i in range(bs)]
-
-        # imgs, imgs_remain, masks, mask_remain, gpp, labels, all_preds, remain_preds, reset=True):
-        # self.vis.plot_mask_gpp(img_np, img_remain_np, self.cam[self.label_exist == 1, :, :].unsqueeze(1),self.cam_sup[self.label_exist == 1, :, :].unsqueeze(1), labels, all_preds, remain_preds)
-        self.vis.plot_mask_gpp(\
-            img_np,\
-            img_remain_np, \
-            img_bg,\
-            mask,\
-            cam_vis[self.label_exist[:bs] == 1, :, :].unsqueeze(1),\
-            # cam_mask_vis[self.label_exist[:bs] == 1, :, :].unsqueeze(1),\
-            labels, all_preds, remain_preds)

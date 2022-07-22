@@ -265,10 +265,10 @@ class Net_gpp(nn.Module):
         feat = F.relu(self.fc8(x))  # B x D x 56 x 56 #기존
         cam = self.fc9(feat)
         
-        gap_2 = F.interpolate(F.adaptive_avg_pool2d(cam,(2,2)),size=cam.size()[2:],mode='bilinear')
-        gap_4 = F.interpolate(F.adaptive_avg_pool2d(cam,(4,4)),size=cam.size()[2:],mode='bilinear')
-        gap_8 = F.interpolate(F.adaptive_avg_pool2d(cam,(8,8)),size=cam.size()[2:],mode='bilinear')
-        gap_16 = F.interpolate(F.adaptive_avg_pool2d(cam,(16,16)),size=cam.size()[2:],mode='bilinear')
+        gap_2 = F.interpolate(F.adaptive_avg_pool2d(cam,(2,2)),size=cam.size()[2:],mode='bilinear',align_corners=False)
+        gap_4 = F.interpolate(F.adaptive_avg_pool2d(cam,(4,4)),size=cam.size()[2:],mode='bilinear',align_corners=False)
+        gap_8 = F.interpolate(F.adaptive_avg_pool2d(cam,(8,8)),size=cam.size()[2:],mode='bilinear',align_corners=False)
+        gap_16 = F.interpolate(F.adaptive_avg_pool2d(cam,(16,16)),size=cam.size()[2:],mode='bilinear',align_corners=False)
         
         att1 = self.gconv1(gap_2,gap_4)
         att2 = self.gconv2(att1,gap_8)
@@ -340,8 +340,6 @@ class gconv(nn.Module):
     
     def forward(self,x,y):
         n,c,h,w = y.size()
-        # x = F.interpolate(x, (h,w), mode="bilinear",align_corners=False)
-        # y = self.dc2(y)
         xy_p = torch.cat([F.relu(x),F.relu(y)],dim=1)
         xy_n = torch.cat([F.relu(-x),F.relu(-y)],dim=1)
         att_p = self.att_p(xy_p)

@@ -122,60 +122,60 @@ def make_path_with_log(args):
     return exp_path, ckpt_path, train_path, val_path, infer_path, dict_path, crf_path, log_path
 
 
-def build_dataset_moco(phase='train', path="voc12/train_aug.txt", root='./data/VOC2012',is_vgg=False,crop=384,resize=[256,448]):
-
-    tf_list = []
-
-    if phase=='train':
-        tf_list.append(imutils.random_resize(resize[0], resize[1]))
-        tf_list.append(transforms.RandomHorizontalFlip())
-        tf_list.append(transforms.ColorJitter(brightness=0.3, contrast=0.3, saturation=0.3, hue=0.1))
-
-    tf_list.append(np.asarray)
-
-    if is_vgg:
-        tf_list.append(imutils.normalize_vgg())
-        print("VGG")
-    else:
-        tf_list.append(imutils.normalize())
-        print("ResNet38d")
-
-    if phase=='train':
-        tf_list.append(imutils.random_crop(crop))
-
-    tf_list.append(imutils.HWC_to_CHW)
-
-    if phase=='train':
-        tf_list.append(imutils.torch.from_numpy)
-
-    tf = transforms.Compose(tf_list)
-
-    if phase=='train':
-        dataset = voc12.data.VOC12ClsDataset_SelfSup(path, voc12_root=root, transform=tf)
-    elif phase=='val':
-        # MSF dataset augments an image to 8 images with multi-scale & flip 
-        dataset = voc12.data.VOC12ClsDatasetMSF(path, voc12_root=root, scales=[0.5,1.0,1.5, 2.0], inter_transform=tf)
-    
-    return dataset
-
-
-# def build_dataset(args, phase='train', path="voc12/train_aug.txt", root='./data/VOC2012'):
+# def build_dataset(phase='train', path="voc12/train_aug.txt", root='./data/VOC2012',is_vgg=False,crop=384,resize=[256,448]):
 
 #     tf_list = []
+
+#     if phase=='train':
+#         tf_list.append(imutils.random_resize(resize[0], resize[1]))
+#         tf_list.append(transforms.RandomHorizontalFlip())
+#         tf_list.append(transforms.ColorJitter(brightness=0.3, contrast=0.3, saturation=0.3, hue=0.1))
+
 #     tf_list.append(np.asarray)
-#     tf_list.append(imutils.normalize())
+
+#     if is_vgg:
+#         tf_list.append(imutils.normalize_vgg())
+#         print("VGG")
+#     else:
+#         tf_list.append(imutils.normalize())
+#         print("ResNet38d")
+
+#     if phase=='train':
+#         tf_list.append(imutils.random_crop(crop))
+
 #     tf_list.append(imutils.HWC_to_CHW)
+
+#     if phase=='train':
+#         tf_list.append(imutils.torch.from_numpy)
+
 #     tf = transforms.Compose(tf_list)
 
-#     crop = args.crop
-#     resize = args.resize
-#     cj = args.cj
-
-#     if phase == 'train':
-#         dataset = voc12.data.VOC12ClsDataset_SelfSup(path, voc12_root=root, crop=crop, resize=resize, cj=cj)
-
-#     elif phase == 'val':
-#         # MSF dataset augments an image to 8 images with multi-scale & flip
-#         dataset = voc12.data.VOC12ClsDatasetMSF(path, voc12_root=root, scales=[0.5, 1.0, 1.5, 2.0], inter_transform=tf)
-
+#     if phase=='train':
+#         dataset = voc12.data.VOC12ClsDataset_SelfSup(path, voc12_root=root, transform=tf)
+#     elif phase=='val':
+#         # MSF dataset augments an image to 8 images with multi-scale & flip 
+#         dataset = voc12.data.VOC12ClsDatasetMSF(path, voc12_root=root, scales=[0.5,1.0,1.5, 2.0], inter_transform=tf)
+    
 #     return dataset
+
+
+def build_dataset_moco(args, phase='train', path="voc12/train_aug.txt", root='./data/VOC2012'):
+
+    tf_list = []
+    tf_list.append(np.asarray)
+    tf_list.append(imutils.normalize())
+    tf_list.append(imutils.HWC_to_CHW)
+    tf = transforms.Compose(tf_list)
+
+    crop = args.crop
+    resize = args.resize
+    cj = args.cj
+
+    if phase == 'train':
+        dataset = voc12.data.VOC12ClsDataset_SelfSup(path, voc12_root=root, crop=crop, resize=resize, cj=cj)
+
+    elif phase == 'val':
+        # MSF dataset augments an image to 8 images with multi-scale & flip
+        dataset = voc12.data.VOC12ClsDatasetMSF(path, voc12_root=root, scales=[0.5, 1.0, 1.5, 2.0], inter_transform=tf)
+
+    return dataset
