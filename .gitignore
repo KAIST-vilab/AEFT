@@ -1,5 +1,4 @@
 data/
 pretrained/
-models/
 .fuse_*
 experiments/
