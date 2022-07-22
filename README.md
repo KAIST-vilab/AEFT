@@ -13,7 +13,7 @@ With image-level supervision only, we achieved new state-of-the-arts both on PAS
 
 
 ## Prerequisite
-* Tested on Ubuntu 18.04, with Python 3.6, PyTorch 1.8.1, CUDA 10.1, both on both single and multi gpu.
+* Tested on Ubuntu 18.04, with Python 3.6, PyTorch 1.8.2, CUDA 11.4, both on both single and multi gpu.
 * You can create conda environment with the provided yaml file.
 ```
 conda env create -f wsss_new.yaml
