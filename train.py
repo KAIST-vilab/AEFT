@@ -58,7 +58,7 @@ if __name__ == '__main__':
     parser.add_argument("--max_epochs", default=50, type=int)
 
     # Experiments
-    parser.add_argument("--model", default='eccv22_final', type=str)
+    parser.add_argument("--model", default='aeft_gpp', type=str)
     parser.add_argument("--name", required=True, type=str)
     parser.add_argument("--gpu", default=-1, type=int)
     parser.add_argument("--seed", default=5123, type=int)

@@ -29,11 +29,11 @@ You need to place the weights as ./pretrained/aeft_gpp.pth.
 * Please specify the name of your experiment.
 * Training results are saved at ./experiment/[exp_name]
 ```
-python train.py --name [exp_name] --model aeft_gpp_eccv22
+python train.py --name [exp_name] --model aeft_gpp
 ```
 ### Inference
 ```
-python infer.py --name [exp_name] --model model_cse --load_epo [epoch_to_load] --vis --dict --crf --alphas 6 10 24
+python infer.py --name [exp_name] --model aeft_gpp --load_epo [epoch_to_load] --vis --dict --crf --alphas [crf value to extract, e.g. 6,7,8]
 ```
 ### Evaluation for CAM result
 ```
