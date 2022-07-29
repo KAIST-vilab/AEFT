@@ -15,17 +15,17 @@ With image-level supervision only, we achieved new state-of-the-arts both on PAS
 
 
 ## Prerequisite
-* Tested on Ubuntu 18.04, with Python 3.6, PyTorch 1.8.2, CUDA 11.4, both on both single and multi gpu.
+* Tested on Ubuntu 18.04, with Python 3.8, PyTorch 1.8.2, CUDA 11.4, both on both single and multi gpu.
 * You can create conda environment with the provided yaml file.
 ```
 conda env create -f wsss_new.yaml
 ```
 * [The PASCAL VOC 2012 development kit](http://host.robots.ox.ac.uk/pascal/VOC/voc2012/):
 You need to specify place VOC2012 under ./data folder.
-* ImageNet-pretrained weights for resnet38d are from [[resnet_38d.params]](https://github.com/itijyou/ademxapp).
+* ImageNet-pretrained weights for resnet38d are from [[resnet_38d.params]](https://drive.google.com/drive/folders/1Ak7eAs8Y8ujjv8TKIp-qCW20fgiIWTc2?usp=sharing).
 You need to place the weights as ./pretrained/resnet_38d.params.
-* PASCAL-pretrained weights will be uploaded soon.. (TBD)
-You need to place the weights as ./pretrained/aeft_gpp.pth.
+* Pretrained weight (PASCAL, seed: 56.2% mIoU) can be downloaded [here](https://drive.google.com/drive/folders/1Ak7eAs8Y8ujjv8TKIp-qCW20fgiIWTc2?usp=sharing).
+
 ## Usage
 > With the following code, you can generate pseudo labels to train the segmentation network. 
 
