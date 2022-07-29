@@ -242,16 +242,4 @@ if __name__ == '__main__':
     miou = evaluation(rw_path)
         
 
-    # 11
-    # miou_max = -9999
-    # crf_max = 0
-    # for i in range(5):
-    #     infer_aff(args, model, infer_data_loader, rw_path, i+14)
-    #     print(i+14)
-    #     miou = evaluation(rw_path)
-    #     if miou>miou_max:
-    #         miou_max = miou
-    #         crf_max = i+11
-    #
-    # print(crf_max, miou_max)
     

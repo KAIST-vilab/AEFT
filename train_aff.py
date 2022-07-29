@@ -219,7 +219,7 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    pyutils.Logger(args.name + '_aff' + '.log')
+    pyutils.Logger('./experiments/'+args.name+'/'+'log_aff'+ str(args.low).zfill(2) + str(args.high).zfill(2)+str(args.dup).zfill(2) + '.log')
 
     model = resnet38_aff.Net()
 
@@ -288,7 +288,7 @@ if __name__ == '__main__':
     ], lr=args.lr, weight_decay=args.wt_dec, max_step=max_step)
 
     # weights_dict = convert_mxnet_to_torch('./pretrained/resnet_38d.params')
-    weights_dict = torch.load("./pretrained/res38_cls.pth")
+    weights_dict = torch.load("./pretrained/res38_cls.pth") #Faster convergence
     model.load_state_dict(weights_dict, strict=False)
     model = torch.nn.DataParallel(model).cuda()
     model.train()

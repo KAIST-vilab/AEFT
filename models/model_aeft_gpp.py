@@ -254,6 +254,7 @@ class model_WSSS():
         loss = self.loss_cls
 
         ################################################### Attraction ###################################################
+        
 
         if self.W[1] > 0 and epo>= self.T:
             cam_mask, self.out_mask, gpp_masked = self.net_main(self.img*mask_pos) #original

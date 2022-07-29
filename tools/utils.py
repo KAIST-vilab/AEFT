@@ -23,11 +23,14 @@ class PolyOptimizer(torch.optim.SGD):
 
         self.__initial_lr = [group['lr'] for group in self.param_groups]
 
+        self.lr_mult =  (1 - self.global_step / self.max_step) ** self.momentum
 
     def step(self, closure=None):
 
         if self.global_step < self.max_step:
             lr_mult = (1 - self.global_step / self.max_step) ** self.momentum
+
+            self.lr_mult = lr_mult
 
             for i in range(len(self.param_groups)):
                 self.param_groups[i]['lr'] = self.__initial_lr[i] * lr_mult

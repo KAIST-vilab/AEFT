@@ -45,6 +45,9 @@ if __name__ == '__main__':
     parser.add_argument("--infer_list", default="voc12/train.txt", type=str)
     parser.add_argument("--num_workers", default=8, type=int)
     parser.add_argument("--batch_size", default=8, type=int)
+    parser.add_argument("--resize", default=[256, 512], nargs='+', type=float)
+    parser.add_argument("--crop", default=[320, 320], nargs='+', type=int)
+    parser.add_argument("--cj", default=[0.4, 0.4, 0.4, 0.1], nargs='+', type=float)
 
     # Learning rate
     parser.add_argument("--lr", default=0.01, type=float)
@@ -52,16 +55,11 @@ if __name__ == '__main__':
     parser.add_argument("--max_epoches", default=8, type=int)
 
     # Experiments
-    parser.add_argument("--model", default='tpl3_final', type=str)
+    parser.add_argument("--model", default='aeft_gpp', type=str)
     parser.add_argument("--name", required=True, type=str)
     parser.add_argument("--gpu", default=-1, type=int)
     parser.add_argument("--load_epo", required=True, type=int)
-    parser.add_argument("--visport", required=True, type=int)
-    parser.add_argument("--is_vgg", default=False, type=bool)
-    parser.add_argument("--iterative", action='store_true')
-    parser.add_argument("--memory", action='store_true')
-    parser.add_argument("--hard", action='store_true')
-    parser.add_argument("--low_scale", default=1.0, type=float)
+
 
     # Hyper-parameters
     parser.add_argument("--D", default=256, type=int)
@@ -71,12 +69,6 @@ if __name__ == '__main__':
     parser.add_argument("--W", default=[1.0, 1.0, 1.0], nargs='+', type=float)
     parser.add_argument("--CRF", default=4, type=int)
     parser.add_argument("--MEM", default=4, type=int)
-
-    # Model related hyper-parameters
-    parser.add_argument("--sharing_position", default=0, type=int)
-    parser.add_argument("--loss_weights", default=[1,1,1,1], nargs='+', type=int)
-    parser.add_argument("--prob", default=0.50, type=float)
-    parser.add_argument("--cl_loop", default=1, type=int)   
 
     # Output
     parser.add_argument("--vis", action='store_true')
@@ -94,7 +86,7 @@ if __name__ == '__main__':
     print('Infer experiment ' + args.name + '!')
     exp_path, ckpt_path, train_path, val_path, infer_path, dict_path, crf_path = utils.make_path(args)
 
-    infer_dataset = utils.build_dataset(phase='val', path=args.infer_list,is_vgg=args.is_vgg)
+    infer_dataset = utils.build_dataset_moco(args,phase='val', path=args.infer_list)
     infer_data_loader = DataLoader(infer_dataset, shuffle=False, pin_memory=True)
 
     print('Infer dataset is loaded from ' + args.infer_list)
@@ -102,17 +94,12 @@ if __name__ == '__main__':
     model = getattr(importlib.import_module('models.model_'+args.model), 'model_WSSS')(args, logger)
     model.load_model(args.load_epo, ckpt_path)
     model.set_phase('eval')
+    model.infer_init()
 
     print('#'*111)
     print(('#'*46)+' Start infer loop '+('#'*47))
     print('#'*111)
-    # model.infer_init()
 
     for iter, pack in enumerate(tqdm(infer_data_loader)):
-        # print(pack[0])
-        # if iter>5300:
         model.unpack(pack)
-        # model.infer(42, infer_path, dict_path, crf_path, vis=args.vis, dict=args.dict, crf=args.crf)
-        # model.infer_multi(42, infer_path, dict_path, crf_path, vis=args.vis, dict=args.dict, crf=args.crf)
         model.infer_multi(42, train_path, dict_path, crf_path, vis=args.vis, dict=args.dict, crf=args.crf)
-        # model.infer_ae(42, train_path, dict_path, crf_path, vis=args.vis, dict=args.dict, crf=args.crf)
