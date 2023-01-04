@@ -71,7 +71,14 @@ python evaluation.py --name [exp_name] --task crf --dict_dir crf/[xx]
 ## Citation
 If our code be useful for you, please consider citing our ECCV paper using the following BibTeX entry.
 ```
-TBD
+@inproceedings{yoon2022adversarial,
+  title={Adversarial Erasing Framework via Triplet with Gated Pyramid Pooling Layer for Weakly Supervised Semantic Segmentation},
+  author={Yoon, Sung-Hoon and Kweon, Hyeokjun and Cho, Jegyeong and Kim, Shinjeong and Yoon, Kuk-Jin},
+  booktitle={European Conference on Computer Vision},
+  pages={326--344},
+  year={2022},
+  organization={Springer}
+}
 ```
 
 we heavily borrow the work from [AffinityNet](https://github.com/jiwoon-ahn/psa) repository. Thanks for the excellent codes!
