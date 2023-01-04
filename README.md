@@ -3,7 +3,7 @@
 
 # Adversarial Erasing Framework via Triplet with Gated Pyramid Pooling Layer for Weakly Supervised Semantic Segmentation
 
-This repository contains the official PyTorch implementation of the paper "[Adversarial Erasing Framework via Triplet with Gated Pyramid Pooling Layer for Weakly Supervised Semantic Segmentation](tbd)" paper (ECCV 2022) by [Sung-Hoon Yoon](https://github.com/sunghoonYoon) and [Hyeokjun Kweon](https://github.com/sangrockEG).
+This repository contains the official PyTorch implementation of the paper "[Adversarial Erasing Framework via Triplet with Gated Pyramid Pooling Layer for Weakly Supervised Semantic Segmentation](https://www.ecva.net/papers/eccv_2022/papers_ECCV/papers/136890323.pdf)" paper (ECCV 2022) by [Sung-Hoon Yoon](https://github.com/sunghoonYoon) and [Hyeokjun Kweon](https://github.com/sangrockEG).
 
 
 ## Introduction
