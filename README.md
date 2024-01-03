@@ -22,8 +22,8 @@ conda env create -f wsss_new.yaml
 ```
 * [The PASCAL VOC 2012 development kit](http://host.robots.ox.ac.uk/pascal/VOC/voc2012/):
 You need to specify place VOC2012 under ./data folder.
-* ImageNet-pretrained weights for resnet38d are from [[resnet_38d.params]](https://drive.google.com/file/d/1fpb4vah3e-Ynx4cv5upUcqnpJFY_FTja/view?usp=drive_link). **Note that we have reuploaded this file, as the file had been damaged.**
-You need to place the weights as ./pretrained/resnet_38d.params.
+* ImageNet-pretrained weights for resnet38d are from [[resnet_38d.params]](https://drive.google.com/file/d/1fpb4vah3e-Ynx4cv5upUcqnpJFY_FTja/view?usp=drive_link). 
+You need to place the weights as ./pretrained/resnet_38d.params. **Note that we have reuploaded this file, as the file had been damaged.**
 * Pretrained weight (PASCAL, seed: 56.2% mIoU) can be downloaded [here](https://drive.google.com/drive/folders/1Ak7eAs8Y8ujjv8TKIp-qCW20fgiIWTc2?usp=sharing).
 
 ## Usage
